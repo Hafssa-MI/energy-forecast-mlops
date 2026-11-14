@@ -1,0 +1,11 @@
+# Environnement et caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Sorties locales (les données et modèles suivis par DVC sont gérés par DVC)
+/mlruns/
+/metrics/*.png
+# Secrets locaux
+envs/*.env
+.dvc/config.local
