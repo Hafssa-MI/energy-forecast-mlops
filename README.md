@@ -15,3 +15,10 @@ définir avant tout entraînement (le jeton n'est jamais versionné) :
 
 Vérifier la connexion : `python scripts/check_mlflow.py`.
 Une expérience par environnement : energy-dev, energy-staging, energy-prod.
+## Reproduire le pipeline
+    git pull
+    dvc pull
+    python scripts/use_env.py dev      # ou staging / prod
+    dvc repro                          # entraîne les 5 modèles x 2 horizons
+    dvc metrics show                   # compare les résultats
+Variables MLflow à définir avant dvc repro : voir la section MLflow.
