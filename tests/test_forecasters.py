@@ -18,3 +18,17 @@ def test_baseline_is_perfect_on_periodic_series():
     s = make_series()
     res, _, _ = backtest(SeasonalNaive(), s, 60 * 24, 24, 24)
     assert res["mae"] < 1e-6
+
+import pytest
+
+
+def test_prophet_save_load_roundtrip(tmp_path):
+    pytest.importorskip("prophet")
+    from forecasters import ProphetForecaster
+
+    s = make_series(40)
+    m = ProphetForecaster(window_days=30).fit(s, None, 24)
+    p1 = m.predict(s, 24)
+    m.save(tmp_path / "m")
+    p2 = ProphetForecaster.load(tmp_path / "m").predict(s, 24)
+    assert len(p1) == 24 and np.allclose(p1, p2)
