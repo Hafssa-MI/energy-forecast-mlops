@@ -5,3 +5,13 @@ Outils : Git/GitHub, DVC, MLflow, Docker, FastAPI, Prometheus, Grafana.
 Les données et modèles sont versionnés avec DVC. Le stockage distant est hébergé sur DagsHub.
 Après un `git pull`, récupérer les données avec `dvc pull`. L'identifiant et le jeton DagsHub
 se configurent en local avec `dvc remote modify dagshub --local ...` (jamais dans Git).
+## Suivi des expériences (MLflow sur DagsHub)
+Le tracking et le registre des modèles sont hébergés sur DagsHub. Dans chaque terminal,
+définir avant tout entraînement (le jeton n'est jamais versionné) :
+
+    $env:MLFLOW_TRACKING_URI="https://dagshub.com/Hafssa-MI/energy-forecast-mlops.mlflow"
+    $env:MLFLOW_TRACKING_USERNAME="<utilisateur DagsHub>"
+    $env:MLFLOW_TRACKING_PASSWORD="<jeton DagsHub>"
+
+Vérifier la connexion : `python scripts/check_mlflow.py`.
+Une expérience par environnement : energy-dev, energy-staging, energy-prod.
