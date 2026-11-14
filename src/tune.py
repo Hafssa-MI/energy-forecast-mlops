@@ -25,6 +25,8 @@ def main():
     ap.add_argument("--kind", required=True, choices=["short", "long"])
     ap.add_argument("--max-origins", type=int, default=None,
                     help="limite le nombre de prévisions de validation")
+    ap.add_argument("--stride", type=int, default=None,
+                    help="pas (en heures) entre deux prévisions de validation")
     a = ap.parse_args()
 
     import mlflow
@@ -35,6 +37,7 @@ def main():
     train, val, _ = load_splits(cfg)            # le test n'est jamais utilisé ici
     full = pd.concat([train, val])
     max_origins = a.max_origins or cfg.get("max_origins")
+    stride = a.stride or params["backtest"]["origin_stride"]
     candidates = expand_grid(params["tuning"][key])
     print(f"{len(candidates)} combinaisons pour {a.family}/{a.kind} (env {env})")
 
@@ -48,7 +51,7 @@ def main():
             mlflow.log_params({k: str(v) for k, v in over.items()})
             t0 = time.time()
             fc = build_forecaster(a.family, cfg_i, params).fit(train, val, H)
-            res, _, _ = backtest(fc, full, len(val), H, params["backtest"]["origin_stride"], max_origins)
+            res, _, _ = backtest(fc, full, len(val), H, stride , max_origins)
             mlflow.log_metrics({"val_mae": res["mae"], "val_rmse": res["rmse"],
                                 "val_mape": res["mape"], "train_seconds": time.time() - t0})
         rows.append({"params": over, "val_mae": res["mae"], "val_rmse": res["rmse"],
