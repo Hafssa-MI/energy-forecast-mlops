@@ -1,0 +1,91 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python src/download.py
+    deps:
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/download.py
+      hash: md5
+      md5: e15a30b5a004c2969c3650d1e265deff
+      size: 652
+    params:
+      params.yaml:
+        data.raw_path: data/raw/opsd_60min.csv
+        data.url: 
+          https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+    outs:
+    - path: data/raw/opsd_60min.csv
+      hash: md5
+      md5: 3e2598ed455f85e1df970998a8552d59
+      size: 130339665
+  clean:
+    cmd: python src/clean.py
+    deps:
+    - path: data/raw/opsd_60min.csv
+      hash: md5
+      md5: 3e2598ed455f85e1df970998a8552d59
+      size: 130339665
+    - path: src/clean.py
+      hash: md5
+      md5: 86ec074d73de1b7d73b2c6bbcc331747
+      size: 1323
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    params:
+      params.yaml:
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+    outs:
+    - path: data/processed/load_hourly.csv
+      hash: md5
+      md5: 22b110670ae00d7dce71ef258a999666
+      size: 1461619
+  split:
+    cmd: python src/split.py
+    deps:
+    - path: data/processed/load_hourly.csv
+      hash: md5
+      md5: 22b110670ae00d7dce71ef258a999666
+      size: 1461619
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/split.py
+      hash: md5
+      md5: a42be8ed74b8ac9143c672a4ea1e5401
+      size: 1025
+    params:
+      params.yaml:
+        split:
+          stream_days: 30
+          test_days: 60
+          val_days: 60
+    outs:
+    - path: data/processed/stream.csv
+      hash: md5
+      md5: 8c22b44d21f101b3078fd7332ada38c0
+      size: 20899
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
