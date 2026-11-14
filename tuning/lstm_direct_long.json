@@ -1,0 +1,53 @@
+{
+  "env": "staging",
+  "ranking": [
+    {
+      "params": {
+        "lookback": 168,
+        "units_grid": [
+          64
+        ],
+        "epochs": 10
+      },
+      "val_mae": 2848.5424720723795,
+      "val_rmse": 4042.5134891721355,
+      "val_mape": 6.168870120896236
+    },
+    {
+      "params": {
+        "lookback": 336,
+        "units_grid": [
+          64
+        ],
+        "epochs": 10
+      },
+      "val_mae": 2861.4393594731728,
+      "val_rmse": 4049.1910326989605,
+      "val_mape": 6.198160489876925
+    },
+    {
+      "params": {
+        "lookback": 336,
+        "units_grid": [
+          32
+        ],
+        "epochs": 10
+      },
+      "val_mae": 3037.101806640625,
+      "val_rmse": 4257.390246136025,
+      "val_mape": 6.530579359609725
+    },
+    {
+      "params": {
+        "lookback": 168,
+        "units_grid": [
+          32
+        ],
+        "epochs": 10
+      },
+      "val_mae": 3071.1235131965113,
+      "val_rmse": 4247.764476478638,
+      "val_mape": 6.652933116471206
+    }
+  ]
+}
