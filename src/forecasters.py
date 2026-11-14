@@ -8,6 +8,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+logging.getLogger("cmdstanpy").setLevel(logging.WARNING)
+logging.getLogger("prophet").setLevel(logging.WARNING)
+
+
+def _future_index(history, horizon):
+    return history.index[-1] + pd.to_timedelta(np.arange(1, horizon + 1), unit="h")
+
 
 class SeasonalNaive:
     """Baseline : la valeur de la même heure, la semaine précédente."""
