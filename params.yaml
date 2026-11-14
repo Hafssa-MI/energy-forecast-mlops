@@ -35,16 +35,16 @@ envs:
     mlflow_experiment: energy-staging
     max_train_days: null
     max_origins: null
-    sarima: {window_days: 42, orders: [[1, 0, 1], [2, 0, 1]], seasonal: [1, 1, 1, 24]}
-    prophet: {window_days: 730}
-    lstm: {lookback: 168, units_grid: [32], epochs: 8, batch_size: 256, patience: 3, stride: 2}
+    sarima: {window_days: 42, orders: [[2, 0, 1]], seasonal: [1, 1, 1, 24]}
+    prophet: {window_days: null}
+    lstm: {lookback: 336, units_grid: [32], epochs: 10, batch_size: 256, patience: 3, stride: 2}
   prod:
     mlflow_experiment: energy-prod
     max_train_days: null
     max_origins: null
-    sarima: {window_days: 60, orders: [[1, 0, 1], [2, 0, 1], [2, 0, 2]], seasonal: [1, 1, 1, 24]}
+    sarima: {window_days: 42, orders: [[2, 0, 1]], seasonal: [1, 1, 1, 24]}
     prophet: {window_days: null}
-    lstm: {lookback: 168, units_grid: [32, 64], epochs: 15, batch_size: 256, patience: 3, stride: 1}
+    lstm: {lookback: 336, units_grid: [32], epochs: 10, batch_size: 256, patience: 3, stride: 2}
 tuning:
   experiment: energy-tuning
   sarima:
