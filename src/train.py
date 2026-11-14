@@ -48,6 +48,10 @@ def main():
                              cfg.get("max_origins"))
         mlflow.log_metrics({k: res[k] for k in ("mae", "rmse", "mape")})
         mlflow.log_metric("n_origins", res["n_origins"])
+        res_val, _, _ = backtest(fc, pd.concat([train, val]), len(val), H, params["backtest"]["origin_stride"], cfg.get("max_origins"))
+        mlflow.log_metrics({f"val_{k}": res_val[k] for k in ("mae", "rmse", "mape")})
+        print(f"[{a.family}/{a.kind}] VAL MAE={res_val['mae']:.0f} MW  "
+              f"RMSE={res_val['rmse']:.0f}  MAPE={res_val['mape']:.2f}%")
         print(f"[{a.family}/{a.kind}] MAE={res['mae']:.0f} MW  RMSE={res['rmse']:.0f}  "
               f"MAPE={res['mape']:.2f}%  ({res['n_origins']} origines)")
 
@@ -66,7 +70,8 @@ def main():
         fc.save(out_dir)
         mlflow.log_artifacts(str(out_dir), "bundle")     # le "bundle" sera enregistré dans le Registry
         (ROOT / "metrics" / f"{a.family}_{a.kind}.json").write_text(
-            json.dumps({k: res[k] for k in ("mae", "rmse", "mape")}, indent=2))
+            json.dumps({**{k: res[k] for k in ("mae", "rmse", "mape")},
+            **{f"val_{k}": res_val[k] for k in ("mae", "rmse", "mape")}}, indent=2))
 
 
 if __name__ == "__main__":
