@@ -122,6 +122,89 @@ class ProphetForecaster:
         o.model = model_from_json((Path(d) / "prophet.json").read_text())
         return o
 
+class LSTMDirect:
+    """LSTM stratégie DIRECTE : une seule passe produit les `horizon` valeurs d'un coup."""
+    family = "lstm_direct"
+
+    def __init__(self, lookback=168, units_grid=(32,), epochs=10, batch_size=256, patience=3,
+                 stride=1, tz="Europe/Berlin", country="DE", **_):
+        self.lookback, self.units_grid = int(lookback), list(units_grid)
+        self.epochs, self.batch_size, self.patience = int(epochs), int(batch_size), int(patience)
+        self.stride, self.tz, self.country = int(stride), tz, country
+        self.mean = self.std = None
+        self.horizon = None
+        self.model = None
+
+    def _features(self, index, values):
+        z = ((np.asarray(values, "float32") - self.mean) / self.std)[:, None]
+        return np.hstack([z, calendar_features(index, self.tz, self.country)])
+
+    def _xy(self, series, horizon, start=0):
+        F = self._features(series.index, series.values)
+        L = self.lookback
+        idx = np.arange(max(L - 1, start), len(F) - horizon, self.stride)
+        X = np.stack([F[i - L + 1: i + 1] for i in idx]).astype("float32")
+        Y = np.stack([F[i + 1: i + 1 + horizon, 0] for i in idx]).astype("float32")
+        return X, Y
+
+    def _build(self, units, horizon):
+        import tensorflow as tf
+        m = tf.keras.Sequential([
+            tf.keras.layers.Input((self.lookback, 6)),
+            tf.keras.layers.LSTM(units),
+            tf.keras.layers.Dropout(0.1),
+            tf.keras.layers.Dense(horizon),
+        ])
+        m.compile(optimizer="adam", loss="mse")
+        return m
+
+    def fit(self, train, val, horizon):
+        import tensorflow as tf
+        tf.keras.utils.set_random_seed(42)
+        self.horizon = horizon
+        self.mean, self.std = float(train.mean()), float(train.std())
+        Xtr, Ytr = self._xy(train, horizon)
+        both = pd.concat([train, val])
+        Xva, Yva = self._xy(both, horizon, start=len(train) - 1)
+        best = None
+        for units in self.units_grid:
+            m = self._build(units, horizon)
+            h = m.fit(Xtr, Ytr, validation_data=(Xva, Yva), epochs=self.epochs,
+                      batch_size=self.batch_size, verbose=2,
+                      callbacks=[tf.keras.callbacks.EarlyStopping(
+                          patience=self.patience, restore_best_weights=True)])
+            v = min(h.history["val_loss"])
+            print(f"  LSTM units={units} val_loss={v:.4f}")
+            if best is None or v < best[0]:
+                best = (v, m, units)
+        self.val_loss, self.model, self.units = best
+        return self
+
+    def predict(self, history, horizon):
+        assert horizon == self.horizon, f"Ce modèle prédit {self.horizon} h, pas {horizon} h"
+        h = history.iloc[-self.lookback:]
+        x = self._features(h.index, h.values)[None]
+        y = self.model(x, training=False).numpy()[0]
+        return y * self.std + self.mean
+
+    def _meta(self):
+        return {"family": self.family, "lookback": self.lookback, "mean": self.mean, "std": self.std,
+                "horizon": self.horizon, "tz": self.tz, "country": self.country}
+
+    def save(self, d):
+        Path(d).mkdir(parents=True, exist_ok=True)
+        self.model.save(Path(d) / "model.keras")
+        (Path(d) / "meta.json").write_text(json.dumps(self._meta()))
+
+    @classmethod
+    def load(cls, d):
+        import tensorflow as tf
+        m = json.loads((Path(d) / "meta.json").read_text())
+        o = cls(lookback=m["lookback"], tz=m["tz"], country=m["country"])
+        o.mean, o.std, o.horizon = m["mean"], m["std"], m["horizon"]
+        o.model = tf.keras.models.load_model(Path(d) / "model.keras")
+        return o
+
 FAMILIES = {c.family: c for c in (SeasonalNaive,SarimaForecaster,ProphetForecaster)}
 
 
