@@ -20,3 +20,21 @@ stages:
       - data/processed/val.csv
       - data/processed/test.csv
       - data/processed/stream.csv
+  train:
+    matrix:
+      family: [baseline, sarima, prophet, lstm_direct, lstm_recursive]
+      kind: [short, long]
+    cmd: python src/train.py --family ${item.family} --kind ${item.kind}
+    deps:
+      - src/train.py
+      - src/common.py
+      - src/forecasters.py
+      - data/processed/train.csv
+      - data/processed/val.csv
+      - data/processed/test.csv
+    params: [active_env, envs, horizons, backtest, data]
+    outs:
+      - models/${item.family}_${item.kind}
+    metrics:
+      - metrics/${item.family}_${item.kind}.json:
+          cache: false
