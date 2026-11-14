@@ -84,7 +84,44 @@ class SarimaForecaster:
         o.order, o.params = tuple(m["order"]), np.array(m["params"])
         return o
 
-FAMILIES = {c.family: c for c in (SeasonalNaive,SarimaForecaster)}
+class ProphetForecaster:
+    """Prophet : tendance + saisonnalités + jours fériés. N'utilise que les dates futures."""
+    family = "prophet"
+
+    def __init__(self, window_days=None, country="DE", **_):
+        self.window = int(window_days) * 24 if window_days else None
+        self.country = country
+        self.model = None
+
+    def fit(self, train, val, horizon):
+        from prophet import Prophet
+        y = train.iloc[-self.window:] if self.window else train
+        df = pd.DataFrame({"ds": y.index, "y": y.values})
+        m = Prophet(daily_seasonality=True, weekly_seasonality=True,
+                    yearly_seasonality=len(y) > 24 * 365 * 1.5)
+        m.add_country_holidays(country_name=self.country)
+        m.fit(df)
+        self.model = m
+        return self
+
+    def predict(self, history, horizon):
+        future = pd.DataFrame({"ds": _future_index(history, horizon)})
+        return self.model.predict(future)["yhat"].values
+
+    def save(self, d):
+        from prophet.serialize import model_to_json
+        Path(d).mkdir(parents=True, exist_ok=True)
+        (Path(d) / "prophet.json").write_text(model_to_json(self.model))
+        (Path(d) / "meta.json").write_text(json.dumps({"family": self.family, "country": self.country}))
+
+    @classmethod
+    def load(cls, d):
+        from prophet.serialize import model_from_json
+        o = cls(country=json.loads((Path(d) / "meta.json").read_text())["country"])
+        o.model = model_from_json((Path(d) / "prophet.json").read_text())
+        return o
+
+FAMILIES = {c.family: c for c in (SeasonalNaive,SarimaForecaster,ProphetForecaster)}
 
 
 def build_forecaster(family, cfg, params):
@@ -92,6 +129,8 @@ def build_forecaster(family, cfg, params):
         return SeasonalNaive()
     if family == "sarima":
         return SarimaForecaster(**cfg["sarima"])
+    if family == "prophet":
+        return ProphetForecaster(country=params["data"]["country_holidays"], **cfg["prophet"])
     raise ValueError(f"Famille inconnue pour l'instant : {family}")
 
 
