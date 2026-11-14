@@ -177,14 +177,19 @@ class LSTMDirect:
             print(f"  LSTM units={units} val_loss={v:.4f}")
             if best is None or v < best[0]:
                 best = (v, m, units)
+        self._fn = None
         self.val_loss, self.model, self.units = best
         return self
-
+    def _call(self, x):
+        import tensorflow as tf
+        if getattr(self, "_fn", None) is None:
+            self._fn = tf.function(lambda a: self.model(a, training=False))
+        return self._fn(tf.constant(x)).numpy()
     def predict(self, history, horizon):
         assert horizon == self.horizon, f"Ce modèle prédit {self.horizon} h, pas {horizon} h"
         h = history.iloc[-self.lookback:]
         x = self._features(h.index, h.values)[None]
-        y = self.model(x, training=False).numpy()[0]
+        y = self._call(x)[0]
         return y * self.std + self.mean
 
     def _meta(self):
@@ -220,7 +225,7 @@ class LSTMRecursive(LSTMDirect):
         cal = calendar_features(_future_index(history, horizon), self.tz, self.country)
         out = []
         for k in range(horizon):
-            p = float(self.model(w[None], training=False).numpy()[0, 0])
+            p = float(self._call(w[None])[0, 0])
             out.append(p)
             w = np.vstack([w[1:], np.concatenate([[p], cal[k]]).astype("float32")])
         return np.array(out) * self.std + self.mean
