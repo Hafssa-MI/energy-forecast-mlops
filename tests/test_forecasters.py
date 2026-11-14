@@ -32,3 +32,19 @@ def test_prophet_save_load_roundtrip(tmp_path):
     m.save(tmp_path / "m")
     p2 = ProphetForecaster.load(tmp_path / "m").predict(s, 24)
     assert len(p1) == 24 and np.allclose(p1, p2)
+
+def test_lstm_shapes_and_roundtrip(tmp_path):
+    pytest.importorskip("tensorflow")
+    from forecasters import LSTMDirect, LSTMRecursive
+
+    s = make_series(30)
+    train, val = s.iloc[:-72], s.iloc[-72:]
+    kw = dict(lookback=24, units_grid=[4], epochs=1, batch_size=32, patience=1, stride=1)
+
+    d = LSTMDirect(**kw).fit(train, val, 6)
+    p = d.predict(s, 6)
+    d.save(tmp_path / "d")
+    assert len(p) == 6 and np.allclose(p, LSTMDirect.load(tmp_path / "d").predict(s, 6))
+
+    r = LSTMRecursive(**kw).fit(train, val, 6)
+    assert len(r.predict(s, 6)) == 6
