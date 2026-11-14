@@ -205,7 +205,27 @@ class LSTMDirect:
         o.model = tf.keras.models.load_model(Path(d) / "model.keras")
         return o
 
-FAMILIES = {c.family: c for c in (SeasonalNaive,SarimaForecaster,ProphetForecaster)}
+class LSTMRecursive(LSTMDirect):
+    """LSTM stratégie RÉCURSIVE : prédit 1 h, la réinjecte en entrée, et recommence `horizon` fois.
+    Les erreurs peuvent donc s'accumuler. Le calendrier futur est connu à l'avance."""
+    family = "lstm_recursive"
+
+    def fit(self, train, val, horizon):
+        super().fit(train, val, 1)          # modèle à 1 pas
+        return self
+
+    def predict(self, history, horizon):
+        h = history.iloc[-self.lookback:]
+        w = self._features(h.index, h.values)                      # (L, 6)
+        cal = calendar_features(_future_index(history, horizon), self.tz, self.country)
+        out = []
+        for k in range(horizon):
+            p = float(self.model(w[None], training=False).numpy()[0, 0])
+            out.append(p)
+            w = np.vstack([w[1:], np.concatenate([[p], cal[k]]).astype("float32")])
+        return np.array(out) * self.std + self.mean
+
+FAMILIES = {c.family: c for c in (SeasonalNaive,SarimaForecaster,ProphetForecaster, LSTMDirect, LSTMRecursive)}
 
 
 def build_forecaster(family, cfg, params):
@@ -215,8 +235,10 @@ def build_forecaster(family, cfg, params):
         return SarimaForecaster(**cfg["sarima"])
     if family == "prophet":
         return ProphetForecaster(country=params["data"]["country_holidays"], **cfg["prophet"])
-    raise ValueError(f"Famille inconnue pour l'instant : {family}")
-
+    if family in ("lstm_direct", "lstm_recursive"):
+        d = params["data"]
+        return FAMILIES[family](tz=d["local_tz"], country=d["country_holidays"], **cfg["lstm"])
+    raise ValueError(f"Famille inconnue : {family}")
 
 def load_forecaster(directory):
     fam = json.loads((Path(directory) / "meta.json").read_text())["family"]
