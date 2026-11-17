@@ -1,0 +1,10 @@
+/baseline_short
+/baseline_long
+/sarima_short
+/sarima_long
+/prophet_short
+/prophet_long
+/lstm_direct_short
+/lstm_direct_long
+/lstm_recursive_short
+/lstm_recursive_long
