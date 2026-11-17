@@ -22,3 +22,9 @@ Une expérience par environnement : energy-dev, energy-staging, energy-prod.
     dvc repro                          # entraîne les 5 modèles x 2 horizons
     dvc metrics show                   # compare les résultats
 Variables MLflow à définir avant dvc repro : voir la section MLflow.
+
+## API FastAPI
+
+L'API expose les endpoints de prévision, de réception des observations réelles et les métriques Prometheus.
+
+Consultez la [documentation de l'API](docs/api.md) pour les détails.
