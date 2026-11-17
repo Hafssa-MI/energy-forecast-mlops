@@ -1,0 +1,24 @@
+
+# PROD : redémarrage automatique, limites de ressources, healthcheck, aucun code monté
+services:
+  api:
+    restart: always
+    deploy:
+      resources:
+        limits: {cpus: "2.0", memory: 3g}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+  prometheus:
+    restart: always
+    deploy:
+      resources:
+        limits: {cpus: "0.5", memory: 512m}
+  grafana:
+    restart: always
+    deploy:
+      resources:
+        limits: {cpus: "0.5", memory: 512m}
