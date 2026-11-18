@@ -1,4 +1,5 @@
 # Prévision de la consommation électrique (P8)
+![CI](https://github.com/Hafssa-MI/energy-forecast-mlops/actions/workflows/ci.yml/badge.svg)
 Projet MLOps : séries temporelles et déploiement multi-environnements (dev, staging, prod).
 Outils : Git/GitHub, DVC, MLflow, Docker, FastAPI, Prometheus, Grafana.
 ## Données (DVC)
