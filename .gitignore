@@ -9,3 +9,4 @@ __pycache__/
 # Secrets locaux
 envs/*.env
 .dvc/config.local
+.venv-ci/
