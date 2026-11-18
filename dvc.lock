@@ -114,11 +114,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -162,43 +162,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -207,22 +173,46 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/baseline_short.json
       hash: md5
-      md5: 0ef3fa15ddbbfc99ffebe715ba3f9c98
-      size: 85
+      md5: 0a1966cb3781fd2c2aba95618048e1e5
+      size: 189
     - path: models/baseline_short
       hash: md5
       md5: 36098009071dc49cdab7a07f6f54dc4a.dir
@@ -253,11 +243,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -301,43 +291,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -346,22 +302,46 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/baseline_long.json
       hash: md5
-      md5: ebe7e2b6d89b88bb82c925ffeed92b29
-      size: 93
+      md5: b3e5c852bd6ad789cca92952216f9369
+      size: 194
     - path: models/baseline_long
       hash: md5
       md5: 36098009071dc49cdab7a07f6f54dc4a.dir
@@ -392,11 +372,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -440,43 +420,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -485,26 +431,50 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/sarima_short.json
       hash: md5
-      md5: 9532e8a57bd363949da4bf11410371d7
-      size: 93
+      md5: 6f2c65e0412351a0e213b7003c073392
+      size: 195
     - path: models/sarima_short
       hash: md5
-      md5: 9bcb9b392c6d0bfae54b53903bd06d2b.dir
-      size: 194
+      md5: a635d972adab75c32a930b87d49df57c.dir
+      size: 218
       nfiles: 1
   train@sarima-long:
     cmd: python src/train.py --family sarima --kind long
@@ -531,11 +501,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -579,43 +549,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -624,26 +560,50 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/sarima_long.json
       hash: md5
-      md5: 6efbe18d88e8a36a7cb0c5e9cb5bcd2d
-      size: 91
+      md5: 230adb4b90f1ff8f4e05d1b75660ca3d
+      size: 194
     - path: models/sarima_long
       hash: md5
-      md5: 9bcb9b392c6d0bfae54b53903bd06d2b.dir
-      size: 194
+      md5: a635d972adab75c32a930b87d49df57c.dir
+      size: 218
       nfiles: 1
   train@prophet-short:
     cmd: python src/train.py --family prophet --kind short
@@ -670,11 +630,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -718,43 +678,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -763,26 +689,50 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/prophet_short.json
       hash: md5
-      md5: 877f7e1534e3779c3f6f62d65e620ac4
-      size: 92
+      md5: 94e950f8f4048b540fc316294d1203e0
+      size: 194
     - path: models/prophet_short
       hash: md5
-      md5: c8bbae73065804a8d984aea887932f78.dir
-      size: 339755
+      md5: 23962391ea03210a3323cc31e545d681.dir
+      size: 7199471
       nfiles: 2
   train@prophet-long:
     cmd: python src/train.py --family prophet --kind long
@@ -809,11 +759,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -857,43 +807,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -902,26 +818,50 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/prophet_long.json
       hash: md5
-      md5: e4aced6135a15a3b9b3bea9bf3d6a3a0
-      size: 92
+      md5: d778a290cb39537c48ad60155787c6de
+      size: 197
     - path: models/prophet_long
       hash: md5
-      md5: c8bbae73065804a8d984aea887932f78.dir
-      size: 339755
+      md5: 23962391ea03210a3323cc31e545d681.dir
+      size: 7199471
       nfiles: 2
   train@lstm_direct-short:
     cmd: python src/train.py --family lstm_direct --kind short
@@ -948,11 +888,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -996,43 +936,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -1041,26 +947,50 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/lstm_direct_short.json
       hash: md5
-      md5: 99be0bef0065a2941b319bec09ce70b9
-      size: 93
+      md5: 3ec547345f06395649c03bfca813869c
+      size: 193
     - path: models/lstm_direct_short
       hash: md5
-      md5: d65f85c9b0d68607d49c17a4e2a707fc.dir
-      size: 49166
+      md5: f7c05c3f48ef742686f18d7115b2e214.dir
+      size: 96013
       nfiles: 2
   train@lstm_direct-long:
     cmd: python src/train.py --family lstm_direct --kind long
@@ -1087,11 +1017,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -1135,43 +1065,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -1180,26 +1076,50 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/lstm_direct_long.json
       hash: md5
-      md5: 369ab333813c3a40d7b33a2b08935da5
-      size: 92
+      md5: 62818f33767ae70e33500a7d55e11e31
+      size: 194
     - path: models/lstm_direct_long
       hash: md5
-      md5: 8f16ca2f726b7f2e98d688eb27def105.dir
-      size: 78544
+      md5: 434a9f171ed8af932399553d6ea86085.dir
+      size: 153039
       nfiles: 2
   train@lstm_recursive-short:
     cmd: python src/train.py --family lstm_recursive --kind short
@@ -1226,11 +1146,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -1274,43 +1194,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -1319,26 +1205,50 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/lstm_recursive_short.json
       hash: md5
-      md5: 8dfe6906a990285671e4a1523d163aab
-      size: 93
+      md5: 979f9fdd2499652e2612e7fbc82d899a
+      size: 196
     - path: models/lstm_recursive_short
       hash: md5
-      md5: 3bbc8436ff4918c674d9bee5c8c30903.dir
-      size: 44475
+      md5: 9b320580a19b7d7888134d63bba933c7.dir
+      size: 86906
       nfiles: 2
   train@lstm_recursive-long:
     cmd: python src/train.py --family lstm_recursive --kind long
@@ -1365,11 +1275,11 @@ stages:
       size: 10620
     - path: src/train.py
       hash: md5
-      md5: 4ae564cee331111283c83e071b229fd1
-      size: 3298
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
     params:
       params.yaml:
-        active_env: dev
+        active_env: staging
         backtest:
           origin_stride: 24
         data:
@@ -1413,43 +1323,9 @@ stages:
             sarima:
               window_days: 42
               orders:
-              - - 1
-                - 0
-                - 1
               - - 2
                 - 0
                 - 1
-              seasonal:
-              - 1
-              - 1
-              - 1
-              - 24
-            prophet:
-              window_days: 730
-            lstm:
-              lookback: 168
-              units_grid:
-              - 32
-              epochs: 8
-              batch_size: 256
-              patience: 3
-              stride: 2
-          prod:
-            mlflow_experiment: energy-prod
-            max_train_days:
-            max_origins:
-            sarima:
-              window_days: 60
-              orders:
-              - - 1
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 1
-              - - 2
-                - 0
-                - 2
               seasonal:
               - 1
               - 1
@@ -1458,24 +1334,48 @@ stages:
             prophet:
               window_days:
             lstm:
-              lookback: 168
+              lookback: 336
               units_grid:
               - 32
-              - 64
-              epochs: 15
+              epochs: 10
               batch_size: 256
               patience: 3
-              stride: 1
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
         horizons:
           short: 24
           long: 168
     outs:
     - path: metrics/lstm_recursive_long.json
       hash: md5
-      md5: d6c770a717fa63ea1fda6a3bdc87a2d0
-      size: 93
+      md5: b5ebf1c3223deb4c477f57980e2f2f02
+      size: 197
     - path: models/lstm_recursive_long
       hash: md5
-      md5: 37df7319b4cac53f90197b06f1989b1d.dir
-      size: 44475
+      md5: d93ff913797ce4f532b0c2b4ed856ed0.dir
+      size: 86906
       nfiles: 2
