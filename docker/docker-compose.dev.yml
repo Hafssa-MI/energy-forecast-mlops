@@ -1,0 +1,9 @@
+
+# DEV : code monté en volume, rechargement automatique, logs détaillés
+services:
+  api:
+    command: ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ../src:/app/src
+      - ../api:/app/api
+      - ../data/processed:/app/data/processed:ro
