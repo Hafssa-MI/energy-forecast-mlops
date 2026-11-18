@@ -1,5 +1,5 @@
 # Environnement actif : dev, staging ou prod (modifier avec scripts/use_env.py)
-active_env: dev
+active_env: staging
 
 data:
   url: "https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv"
