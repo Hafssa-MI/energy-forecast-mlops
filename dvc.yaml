@@ -1,0 +1,40 @@
+stages:
+  download:
+    cmd: python src/download.py
+    deps: [src/download.py, src/common.py]
+    params: [data.url, data.raw_path]
+    outs: [data/raw/opsd_60min.csv]
+
+  clean:
+    cmd: python src/clean.py
+    deps: [src/clean.py, src/common.py, data/raw/opsd_60min.csv]
+    params: [data]
+    outs: [data/processed/load_hourly.csv]
+
+  split:
+    cmd: python src/split.py
+    deps: [src/split.py, src/common.py, data/processed/load_hourly.csv]
+    params: [split]
+    outs:
+      - data/processed/train.csv
+      - data/processed/val.csv
+      - data/processed/test.csv
+      - data/processed/stream.csv
+  train:
+    matrix:
+      family: [baseline, sarima, prophet, lstm_direct, lstm_recursive]
+      kind: [short, long]
+    cmd: python src/train.py --family ${item.family} --kind ${item.kind}
+    deps:
+      - src/train.py
+      - src/common.py
+      - src/forecasters.py
+      - data/processed/train.csv
+      - data/processed/val.csv
+      - data/processed/test.csv
+    params: [active_env, envs, horizons, backtest, data]
+    outs:
+      - models/${item.family}_${item.kind}
+    metrics:
+      - metrics/${item.family}_${item.kind}.json:
+          cache: false

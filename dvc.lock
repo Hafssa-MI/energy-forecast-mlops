@@ -1,0 +1,1381 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python src/download.py
+    deps:
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/download.py
+      hash: md5
+      md5: e15a30b5a004c2969c3650d1e265deff
+      size: 652
+    params:
+      params.yaml:
+        data.raw_path: data/raw/opsd_60min.csv
+        data.url: 
+          https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+    outs:
+    - path: data/raw/opsd_60min.csv
+      hash: md5
+      md5: 3e2598ed455f85e1df970998a8552d59
+      size: 130339665
+  clean:
+    cmd: python src/clean.py
+    deps:
+    - path: data/raw/opsd_60min.csv
+      hash: md5
+      md5: 3e2598ed455f85e1df970998a8552d59
+      size: 130339665
+    - path: src/clean.py
+      hash: md5
+      md5: 86ec074d73de1b7d73b2c6bbcc331747
+      size: 1323
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    params:
+      params.yaml:
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+    outs:
+    - path: data/processed/load_hourly.csv
+      hash: md5
+      md5: 22b110670ae00d7dce71ef258a999666
+      size: 1461619
+  split:
+    cmd: python src/split.py
+    deps:
+    - path: data/processed/load_hourly.csv
+      hash: md5
+      md5: 22b110670ae00d7dce71ef258a999666
+      size: 1461619
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/split.py
+      hash: md5
+      md5: 6dd4514647f4e1dad984e501029d1844
+      size: 1051
+    params:
+      params.yaml:
+        split:
+          stream_days: 30
+          test_days: 60
+          val_days: 60
+    outs:
+    - path: data/processed/stream.csv
+      hash: md5
+      md5: 8c22b44d21f101b3078fd7332ada38c0
+      size: 20899
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+  train@baseline-short:
+    cmd: python src/train.py --family baseline --kind short
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/baseline_short.json
+      hash: md5
+      md5: 0a1966cb3781fd2c2aba95618048e1e5
+      size: 189
+    - path: models/baseline_short
+      hash: md5
+      md5: 36098009071dc49cdab7a07f6f54dc4a.dir
+      size: 37
+      nfiles: 1
+  train@baseline-long:
+    cmd: python src/train.py --family baseline --kind long
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/baseline_long.json
+      hash: md5
+      md5: b3e5c852bd6ad789cca92952216f9369
+      size: 194
+    - path: models/baseline_long
+      hash: md5
+      md5: 36098009071dc49cdab7a07f6f54dc4a.dir
+      size: 37
+      nfiles: 1
+  train@sarima-short:
+    cmd: python src/train.py --family sarima --kind short
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/sarima_short.json
+      hash: md5
+      md5: 6f2c65e0412351a0e213b7003c073392
+      size: 195
+    - path: models/sarima_short
+      hash: md5
+      md5: a635d972adab75c32a930b87d49df57c.dir
+      size: 218
+      nfiles: 1
+  train@sarima-long:
+    cmd: python src/train.py --family sarima --kind long
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/sarima_long.json
+      hash: md5
+      md5: 230adb4b90f1ff8f4e05d1b75660ca3d
+      size: 194
+    - path: models/sarima_long
+      hash: md5
+      md5: a635d972adab75c32a930b87d49df57c.dir
+      size: 218
+      nfiles: 1
+  train@prophet-short:
+    cmd: python src/train.py --family prophet --kind short
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/prophet_short.json
+      hash: md5
+      md5: 94e950f8f4048b540fc316294d1203e0
+      size: 194
+    - path: models/prophet_short
+      hash: md5
+      md5: 23962391ea03210a3323cc31e545d681.dir
+      size: 7199471
+      nfiles: 2
+  train@prophet-long:
+    cmd: python src/train.py --family prophet --kind long
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/prophet_long.json
+      hash: md5
+      md5: d778a290cb39537c48ad60155787c6de
+      size: 197
+    - path: models/prophet_long
+      hash: md5
+      md5: 23962391ea03210a3323cc31e545d681.dir
+      size: 7199471
+      nfiles: 2
+  train@lstm_direct-short:
+    cmd: python src/train.py --family lstm_direct --kind short
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/lstm_direct_short.json
+      hash: md5
+      md5: 3ec547345f06395649c03bfca813869c
+      size: 193
+    - path: models/lstm_direct_short
+      hash: md5
+      md5: f7c05c3f48ef742686f18d7115b2e214.dir
+      size: 96013
+      nfiles: 2
+  train@lstm_direct-long:
+    cmd: python src/train.py --family lstm_direct --kind long
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/lstm_direct_long.json
+      hash: md5
+      md5: 62818f33767ae70e33500a7d55e11e31
+      size: 194
+    - path: models/lstm_direct_long
+      hash: md5
+      md5: 434a9f171ed8af932399553d6ea86085.dir
+      size: 153039
+      nfiles: 2
+  train@lstm_recursive-short:
+    cmd: python src/train.py --family lstm_recursive --kind short
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/lstm_recursive_short.json
+      hash: md5
+      md5: 979f9fdd2499652e2612e7fbc82d899a
+      size: 196
+    - path: models/lstm_recursive_short
+      hash: md5
+      md5: 9b320580a19b7d7888134d63bba933c7.dir
+      size: 86906
+      nfiles: 2
+  train@lstm_recursive-long:
+    cmd: python src/train.py --family lstm_recursive --kind long
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 53a8118c33d762e11d322f6f62b99914
+      size: 41779
+    - path: data/processed/train.csv
+      hash: md5
+      md5: b107ff876ed375e97d75a83202ae88b0
+      size: 1357219
+    - path: data/processed/val.csv
+      hash: md5
+      md5: a86b31051f188d1fc46d73b1e8d3e816
+      size: 41779
+    - path: src/common.py
+      hash: md5
+      md5: 871f652019ed8999f24b4bbff75967de
+      size: 3348
+    - path: src/forecasters.py
+      hash: md5
+      md5: dae02524c939ee8587301943cd7979f7
+      size: 10620
+    - path: src/train.py
+      hash: md5
+      md5: 77b9f4dc94f792dae04c029e4843f31b
+      size: 3749
+    params:
+      params.yaml:
+        active_env: staging
+        backtest:
+          origin_stride: 24
+        data:
+          url: 
+            https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv
+          raw_path: data/raw/opsd_60min.csv
+          timestamp_col: utc_timestamp
+          target_col: DE_load_actual_entsoe_transparency
+          local_tz: Europe/Berlin
+          country_holidays: DE
+        envs:
+          dev:
+            mlflow_experiment: energy-dev
+            max_train_days: 120
+            max_origins: 8
+            sarima:
+              window_days: 21
+              orders:
+              - - 1
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days: 90
+            lstm:
+              lookback: 168
+              units_grid:
+              - 16
+              epochs: 3
+              batch_size: 128
+              patience: 2
+              stride: 2
+          staging:
+            mlflow_experiment: energy-staging
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+          prod:
+            mlflow_experiment: energy-prod
+            max_train_days:
+            max_origins:
+            sarima:
+              window_days: 42
+              orders:
+              - - 2
+                - 0
+                - 1
+              seasonal:
+              - 1
+              - 1
+              - 1
+              - 24
+            prophet:
+              window_days:
+            lstm:
+              lookback: 336
+              units_grid:
+              - 32
+              epochs: 10
+              batch_size: 256
+              patience: 3
+              stride: 2
+        horizons:
+          short: 24
+          long: 168
+    outs:
+    - path: metrics/lstm_recursive_long.json
+      hash: md5
+      md5: b5ebf1c3223deb4c477f57980e2f2f02
+      size: 197
+    - path: models/lstm_recursive_long
+      hash: md5
+      md5: d93ff913797ce4f532b0c2b4ed856ed0.dir
+      size: 86906
+      nfiles: 2

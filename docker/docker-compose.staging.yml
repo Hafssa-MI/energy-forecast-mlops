@@ -1,0 +1,14 @@
+
+# STAGING : image figée, redémarrage sauf arrêt manuel, healthcheck
+services:
+  api:
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  prometheus:
+    restart: unless-stopped
+  grafana:
+    restart: unless-stopped

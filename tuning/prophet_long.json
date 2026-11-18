@@ -1,0 +1,29 @@
+{
+  "env": "staging",
+  "ranking": [
+    {
+      "params": {
+        "window_days": null
+      },
+      "val_mae": 2573.952927524558,
+      "val_rmse": 3244.887695537584,
+      "val_mape": 5.557436977513801
+    },
+    {
+      "params": {
+        "window_days": 730
+      },
+      "val_mae": 3089.0114025946054,
+      "val_rmse": 3923.3086001333195,
+      "val_mape": 6.425794352051368
+    },
+    {
+      "params": {
+        "window_days": 365
+      },
+      "val_mae": 7699.256129272526,
+      "val_rmse": 8721.513344031988,
+      "val_mape": 15.927268696168822
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+# Environnement actif : dev, staging ou prod (modifier avec scripts/use_env.py)
+active_env: staging
+
+data:
+  url: "https://data.open-power-system-data.org/time_series/2020-10-06/time_series_60min_singleindex.csv"
+  raw_path: data/raw/opsd_60min.csv
+  timestamp_col: utc_timestamp
+  target_col: DE_load_actual_entsoe_transparency
+  local_tz: Europe/Berlin
+  country_holidays: DE
+
+split:            # découpage chronologique calculé depuis la FIN de la série
+  stream_days: 30   # flux "prod" simulé : ne jamais utiliser pendant le développement
+  test_days: 60
+  val_days: 60
+
+horizons:
+  short: 24       # court terme : 24 heures
+  long: 168       # long terme : 7 jours
+
+backtest:
+  origin_stride: 24   # une prévision par jour dans la période de test
+
+promotion_margin: 0.02   # un modèle remplace l'actuel s'il est meilleur d'au moins 2 %
+
+envs:
+  dev:
+    mlflow_experiment: energy-dev
+    max_train_days: 120
+    max_origins: 8
+    sarima: {window_days: 21, orders: [[1, 0, 1]], seasonal: [1, 1, 1, 24]}
+    prophet: {window_days: 90}
+    lstm: {lookback: 168, units_grid: [16], epochs: 3, batch_size: 128, patience: 2, stride: 2}
+  staging:
+    mlflow_experiment: energy-staging
+    max_train_days: null
+    max_origins: null
+    sarima: {window_days: 42, orders: [[2, 0, 1]], seasonal: [1, 1, 1, 24]}
+    prophet: {window_days: null}
+    lstm: {lookback: 336, units_grid: [32], epochs: 10, batch_size: 256, patience: 3, stride: 2}
+  prod:
+    mlflow_experiment: energy-prod
+    max_train_days: null
+    max_origins: null
+    sarima: {window_days: 42, orders: [[2, 0, 1]], seasonal: [1, 1, 1, 24]}
+    prophet: {window_days: null}
+    lstm: {lookback: 336, units_grid: [32], epochs: 10, batch_size: 256, patience: 3, stride: 2}
+tuning:
+  experiment: energy-tuning
+  sarima:
+    window_days: [42, 60]
+    orders: [[[1, 0, 1]], [[2, 0, 1]], [[1, 0, 2]]]
+  prophet:
+    window_days: [365, 730, null]
+  lstm:
+    lookback: [168, 336]
+    units_grid: [[32], [64]]
+    epochs: [10]

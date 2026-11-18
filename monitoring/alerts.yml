@@ -1,0 +1,9 @@
+﻿groups:
+  - name: forecast-quality
+    rules:
+      - alert: ForecastErrorHigh
+        expr: forecast_rolling_mae_mw{kind="short"} > 2000
+        for: 2m
+        labels: {severity: warning}
+        annotations:
+          summary: "MAE glissante court terme > 2000 MW : envisager un rÃ©entraÃ®nement"
